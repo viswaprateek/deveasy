@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from './test-framework.js';
 import http from 'http';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:3000/';
 
 // Simple test framework implementation
 function makeRequest(method, path, data = null) {
@@ -55,7 +55,7 @@ describe('Student Management API Tests', () => {
     // Clean up: delete any test students created
     for (const id of createdStudents) {
       try {
-        await makeRequest('DELETE', `/students/${id}`);
+        await makeRequest('DELETE', `api/students/${id}`);
       } catch (e) {
         // Ignore errors
       }
@@ -65,7 +65,7 @@ describe('Student Management API Tests', () => {
 
   describe('Health Check', () => {
     it('should return health status', async () => {
-      const response = await makeRequest('GET', '/health');
+      const response = await makeRequest('GET', 'api/health');
       expect(response.statusCode).toBe(200);
       expect(response.body.status).toBe('OK');
     });
@@ -73,14 +73,14 @@ describe('Student Management API Tests', () => {
 
   describe('GET /api/students', () => {
     it('should get all students', async () => {
-      const response = await makeRequest('GET', '/students');
+      const response = await makeRequest('GET', 'api/students');
       expect(response.statusCode).toBe(200);
       expect(response.body.success).toBe(true);
       expect(Array.isArray(response.body.data)).toBe(true);
     });
 
     it('should return students with correct structure', async () => {
-      const response = await makeRequest('GET', '/students');
+      const response = await makeRequest('GET', 'api/students');
       expect(response.statusCode).toBe(200);
       if (response.body.data.length > 0) {
         const student = response.body.data[0];
@@ -96,10 +96,10 @@ describe('Student Management API Tests', () => {
   describe('GET /api/students/:id', () => {
     it('should get a student by ID', async () => {
       // First get all students to get a valid ID
-      const allResponse = await makeRequest('GET', '/students');
+      const allResponse = await makeRequest('GET', 'api/students');
       if (allResponse.body.data.length > 0) {
         const studentId = allResponse.body.data[0].id;
-        const response = await makeRequest('GET', `/students/${studentId}`);
+        const response = await makeRequest('GET', `api/students/${studentId}`);
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.data.id).toBe(studentId);
@@ -107,7 +107,7 @@ describe('Student Management API Tests', () => {
     });
 
     it('should return 404 for non-existent student', async () => {
-      const response = await makeRequest('GET', '/students/non-existent-id-12345');
+      const response = await makeRequest('GET', 'api/students/non-existent-id-12345');
       expect(response.statusCode).toBe(404);
       expect(response.body.success).toBe(false);
     });
@@ -122,12 +122,12 @@ describe('Student Management API Tests', () => {
         course: 'Test Course',
       };
 
-      const response = await makeRequest('POST', '/students', newStudent);
+      const response = await makeRequest('POST', 'api/students', newStudent);
       expect(response.statusCode).toBe(201);
       expect(response.body.success).toBe(true);
       expect(response.body.data.name).toBe(newStudent.name);
       expect(response.body.data.email).toBe(newStudent.email);
-      
+
       testStudentId = response.body.data.id;
       createdStudents.push(testStudentId);
     });
@@ -138,7 +138,7 @@ describe('Student Management API Tests', () => {
         // Missing email, age, course
       };
 
-      const response = await makeRequest('POST', '/students', incompleteStudent);
+      const response = await makeRequest('POST', 'api/students', incompleteStudent);
       expect(response.statusCode).toBe(400);
       expect(response.body.success).toBe(false);
     });
@@ -152,13 +152,13 @@ describe('Student Management API Tests', () => {
       };
 
       // Create first student
-      const response1 = await makeRequest('POST', '/students', student1);
+      const response1 = await makeRequest('POST', 'api/students', student1);
       expect(response1.statusCode).toBe(201);
       const studentId1 = response1.body.data.id;
       createdStudents.push(studentId1);
 
       // Try to create second student with same email
-      const response2 = await makeRequest('POST', '/students', student1);
+      const response2 = await makeRequest('POST', 'api/students', student1);
       expect(response2.statusCode).toBe(409);
       expect(response2.body.success).toBe(false);
     });
@@ -174,7 +174,7 @@ describe('Student Management API Tests', () => {
         course: 'Original Course',
       };
 
-      const createResponse = await makeRequest('POST', '/students', newStudent);
+      const createResponse = await makeRequest('POST', 'api/students', newStudent);
       expect(createResponse.statusCode).toBe(201);
       const studentId = createResponse.body.data.id;
       createdStudents.push(studentId);
@@ -185,7 +185,7 @@ describe('Student Management API Tests', () => {
         age: 21,
       };
 
-      const updateResponse = await makeRequest('PATCH', `/students/${studentId}`, updateData);
+      const updateResponse = await makeRequest('PATCH', `api/students/${studentId}`, updateData);
       expect(updateResponse.statusCode).toBe(200);
       expect(updateResponse.body.success).toBe(true);
       expect(updateResponse.body.data.name).toBe('Updated Name');
@@ -195,7 +195,7 @@ describe('Student Management API Tests', () => {
 
     it('should return 404 for non-existent student', async () => {
       const updateData = { name: 'Updated Name' };
-      const response = await makeRequest('PATCH', '/students/non-existent-id-12345', updateData);
+      const response = await makeRequest('PATCH', 'api/students/non-existent-id-12345', updateData);
       expect(response.statusCode).toBe(404);
       expect(response.body.success).toBe(false);
     });
@@ -211,22 +211,22 @@ describe('Student Management API Tests', () => {
         course: 'Test Course',
       };
 
-      const createResponse = await makeRequest('POST', '/students', newStudent);
+      const createResponse = await makeRequest('POST', 'api/students', newStudent);
       expect(createResponse.statusCode).toBe(201);
       const studentId = createResponse.body.data.id;
 
       // Delete the student
-      const deleteResponse = await makeRequest('DELETE', `/students/${studentId}`);
+      const deleteResponse = await makeRequest('DELETE', `api/students/${studentId}`);
       expect(deleteResponse.statusCode).toBe(200);
       expect(deleteResponse.body.success).toBe(true);
 
       // Verify student is deleted
-      const getResponse = await makeRequest('GET', `/students/${studentId}`);
+      const getResponse = await makeRequest('GET', `api/students/${studentId}`);
       expect(getResponse.statusCode).toBe(404);
     });
 
     it('should return 404 for non-existent student', async () => {
-      const response = await makeRequest('DELETE', '/students/non-existent-id-12345');
+      const response = await makeRequest('DELETE', 'api/students/non-existent-id-12345');
       expect(response.statusCode).toBe(404);
       expect(response.body.success).toBe(false);
     });

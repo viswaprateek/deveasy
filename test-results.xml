@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Health Check" tests="1" failures="0" time="0">
+    <testcase name="should return health status" classname="Health Check">
+    </testcase>
+  </testsuite>
+  <testsuite name="GET /api/students" tests="2" failures="0" time="0">
+    <testcase name="should get all students" classname="GET /api/students">
+    </testcase>
+    <testcase name="should return students with correct structure" classname="GET /api/students">
+    </testcase>
+  </testsuite>
+  <testsuite name="GET /api/students/:id" tests="2" failures="0" time="0">
+    <testcase name="should get a student by ID" classname="GET /api/students/:id">
+    </testcase>
+    <testcase name="should return 404 for non-existent student" classname="GET /api/students/:id">
+    </testcase>
+  </testsuite>
+  <testsuite name="POST /api/students" tests="3" failures="0" time="0">
+    <testcase name="should create a new student" classname="POST /api/students">
+    </testcase>
+    <testcase name="should reject student with missing fields" classname="POST /api/students">
+    </testcase>
+    <testcase name="should reject duplicate email" classname="POST /api/students">
+    </testcase>
+  </testsuite>
+  <testsuite name="PATCH /api/students/:id" tests="2" failures="0" time="0">
+    <testcase name="should update a student" classname="PATCH /api/students/:id">
+    </testcase>
+    <testcase name="should return 404 for non-existent student" classname="PATCH /api/students/:id">
+    </testcase>
+  </testsuite>
+  <testsuite name="DELETE /api/students/:id" tests="2" failures="0" time="0">
+    <testcase name="should delete a student" classname="DELETE /api/students/:id">
+    </testcase>
+    <testcase name="should return 404 for non-existent student" classname="DELETE /api/students/:id">
+    </testcase>
+  </testsuite>
+  <testsuite name="Student Management API Tests" tests="0" failures="0" time="0">
+  </testsuite>
+</testsuites>

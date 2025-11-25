@@ -2,16 +2,21 @@
 let testResults = [];
 let currentSuite = null;
 let currentTest = null;
+const suiteStack = [];
 
 export function describe(suiteName, fn) {
-  currentSuite = {
+  const parentSuite = currentSuite;
+  const newSuite = {
     name: suiteName,
     tests: [],
-    beforeEach: null,
+    beforeEachFns: parentSuite ? [...(parentSuite.beforeEachFns || [])] : [],
   };
+
+  suiteStack.push(parentSuite);
+  currentSuite = newSuite;
   fn();
-  testResults.push(currentSuite);
-  currentSuite = null;
+  testResults.push(newSuite);
+  currentSuite = suiteStack.pop() || null;
 }
 
 export function it(testName, fn) {
@@ -21,7 +26,7 @@ export function it(testName, fn) {
     status: 'pending',
     error: null,
   };
-  
+
   if (currentSuite) {
     currentSuite.tests.push(test);
   } else {
@@ -32,7 +37,10 @@ export function it(testName, fn) {
 
 export function beforeEach(fn) {
   if (currentSuite) {
-    currentSuite.beforeEach = fn;
+    currentSuite.beforeEachFns = [
+      ...(currentSuite.beforeEachFns || []),
+      fn,
+    ];
   }
 }
 
@@ -74,13 +82,15 @@ export async function runTests() {
     for (const test of suite.tests) {
       totalTests++;
       currentTest = test;
-      
+
       try {
-        // Run beforeEach if exists
-        if (suite.beforeEach) {
-          await suite.beforeEach();
+        // Run beforeEach chain if exists
+        if (suite.beforeEachFns && suite.beforeEachFns.length > 0) {
+          for (const hook of suite.beforeEachFns) {
+            await hook();
+          }
         }
-        
+
         // Run the test
         await test.fn();
         test.status = 'passed';
@@ -98,7 +108,7 @@ export async function runTests() {
 
   console.log('\n' + '='.repeat(50));
   console.log(`📊 Test Results: ${passedTests}/${totalTests} passed`);
-  
+
   if (failedTests > 0) {
     console.log(`❌ ${failedTests} test(s) failed`);
     return false;
